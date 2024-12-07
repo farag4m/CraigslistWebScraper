@@ -1,26 +1,28 @@
 import { useState } from 'react';
 import './App.css';
 
-function App() {
+const App = () => {
 
-    // Sample Data
-    const items = [
-        { id: 1, title: "Bicycle for sale", description: "Brand new mountain bike", location: "New York" },
-        { id: 2, title: "Used laptop", description: "Good condition laptop", location: "Chicago" },
-        { id: 3, title: "Sofa for free", description: "Just moved, need to get rid of a sofa", location: "San Francisco" },
-        { id: 4, title: "Coffee table", description: "Wooden coffee table for sale", location: "Los Angeles" }
-    ];
-
-    // State for the query (search term) and results
-    const [query, setQuery] = useState("");
-    const [results, setResults] = useState([]);
+    // Variable states
+    const [zipCode, setZipCode] = useState("");
+    const [carModel, setCarModel] = useState("");
+    const [results, setResults] = useState({ message: "" });
 
     // Handle the search when the button or Enter is clicked
-    const handleSearch = () => {
-        const filteredItems = items.filter(item =>
-            item.title.toLowerCase().includes(query.toLowerCase())
-        );
-        setResults(filteredItems);
+    const handleSearch = async () => {
+        if (!zipCode || !carModel) {
+            alert("Both Zip Code and Car Model are required");
+            return;
+        }
+
+        // Send a GET request to the backend with the paramaters
+        try {
+            //const response = await fetch(/scrape?zipCode=${zipCode}&carModel=${carModel});
+            //const data = await response.json();
+            //setResults(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
     };
 
     const handleKeyPress = (event) => {
@@ -31,14 +33,23 @@ function App() {
 
     return (
         <div className="App">
-            <h1>Hello Craigslist</h1>
+            <h1>Craigslist Scraper</h1>
 
-            {/* Search input */}
+            {/* Zip code input */}
             <input
                 type="text"
-                placeholder="Search items..."
-                value={query}
-                onChange={e => setQuery(e.target.value)}
+                placeholder="Enter Zip Code"
+                value={zipCode}
+                onChange={e => setZipCode(e.target.value)}
+                onKeyDown={handleKeyPress}
+            />
+
+            {/* Car Model input */}
+            <input
+                type="text"
+                placeholder="Enter Car Model"
+                value={carModel}
+                onChange={e => setCarModel(e.target.value)}
                 onKeyDown={handleKeyPress}
             />
 
@@ -47,13 +58,12 @@ function App() {
 
             {/* Display search results */}
             <ul>
-                {results.map(item => (
-                    <li key={item.id}>
-                        <h3>{item.title}</h3>
-                        <p>{item.description}</p>
-                        <p>{item.location}</p>
-                    </li>
-                ))}
+                {/* If there's a message, show it */}
+                {results.message ? (
+                    <li>{results.message}</li>
+                ) : (
+                    <li>No results found</li>
+                )}
             </ul>
         </div>
     );
