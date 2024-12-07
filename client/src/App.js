@@ -1,70 +1,50 @@
 import { useState } from 'react';
+import axios from 'axios';
 import './App.css';
 
 const App = () => {
-
-    // Variable states
     const [zipCode, setZipCode] = useState("");
     const [carModel, setCarModel] = useState("");
-    const [results, setResults] = useState({ message: "" });
+    const [results, setResults] = useState([]);
 
-    // Handle the search when the button or Enter is clicked
     const handleSearch = async () => {
-        if (!zipCode || !carModel) {
-            alert("Both Zip Code and Car Model are required");
-            return;
-        }
-
-        // Send a GET request to the backend with the paramaters
         try {
-            //const response = await fetch(/scrape?zipCode=${zipCode}&carModel=${carModel});
-            //const data = await response.json();
-            //setResults(data);
+            const response = await axios.get(`http://localhost:5000/api/scrape`, {
+                params: { zipCode, carModel }
+            });
+            console.log(response.data);  // Log the response data
+            setResults(response.data.results);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
     };
 
-    const handleKeyPress = (event) => {
-        if (event.key === "Enter") {
-            handleSearch();
-        }
-    };
-
     return (
         <div className="App">
-            <h1>Craigslist Scraper</h1>
-
-            {/* Zip code input */}
+            <h1>Craigslist Car Scraper</h1>
             <input
                 type="text"
-                placeholder="Enter Zip Code"
+                placeholder="Zip Code"
                 value={zipCode}
-                onChange={e => setZipCode(e.target.value)}
-                onKeyDown={handleKeyPress}
+                onChange={(e) => setZipCode(e.target.value)}
             />
-
-            {/* Car Model input */}
             <input
                 type="text"
-                placeholder="Enter Car Model"
+                placeholder="Car Model"
                 value={carModel}
-                onChange={e => setCarModel(e.target.value)}
-                onKeyDown={handleKeyPress}
+                onChange={(e) => setCarModel(e.target.value)}
             />
-
-            {/* Search button */}
             <button onClick={handleSearch}>Search</button>
 
-            {/* Display search results */}
-            <ul>
-                {/* If there's a message, show it */}
-                {results.message ? (
-                    <li>{results.message}</li>
-                ) : (
-                    <li>No results found</li>
-                )}
-            </ul>
+            <div>
+                {results.map((car, index) => (
+                    <div key={index}>
+                        <h3>{car.title}</h3>
+                        <p>Price: {car.price}</p>
+                        <a href={car.link} target="_blank" rel="noopener noreferrer">View Listing</a>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
